@@ -1,0 +1,67 @@
+catagory
+
+{
+  category(id : 3) {
+    products {
+      total_count
+      page_info {
+        current_page
+        page_size
+        
+      }
+    }
+    children_count
+    children {
+      id
+      level
+      name
+      path
+      
+      children {
+        id
+        level
+        name
+        path
+       
+      }
+    }
+  }
+}
+
+nested catagory
+{
+  category(id: 20) {
+    products {
+      total_count
+      page_info {
+        current_page
+        page_size
+      }
+    }
+    children_count
+    children {
+      id
+      level
+      name
+      path
+      children {
+        id
+        level
+        name
+        path
+        children {
+          id
+          level
+          name
+          path
+          children {
+            id
+            level
+            name
+            path
+          }
+        }
+      }
+    }
+  }
+}
