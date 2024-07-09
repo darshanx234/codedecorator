@@ -5,6 +5,7 @@ import 'package:onlinestore/clint/graphql_clint.dart';
 import 'package:onlinestore/homepage.dart';
 import 'package:onlinestore/loginpage.dart';
 import 'package:onlinestore/myhomepage.dart';
+import 'package:onlinestore/productdetail.dart';
 import 'package:onlinestore/signuppage.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
