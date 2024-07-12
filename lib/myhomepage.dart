@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'package:onlinestore/accountpage.dart';
 import 'package:onlinestore/catagorypage.dart';
 import 'package:onlinestore/homepage.dart';
 import 'package:onlinestore/mydrawer.dart';
@@ -48,7 +49,9 @@ class _MyhomepageState extends State<Myhomepage> {
                   ),
                 ),
                 InkWell(
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.pushNamed(context, '/cart');
+                  },
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Icon(Icons.shopping_cart),
@@ -94,67 +97,4 @@ class _MyhomepageState extends State<Myhomepage> {
 class FavoritesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Center(child: Text('Favorites Page'));
-}
-
-class AccountPage extends StatefulWidget {
-  @override
-  State<AccountPage> createState() => _AccountPageState();
-}
-
-class _AccountPageState extends State<AccountPage> {
-  late Box box;
-  late Box box2;
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    box = Hive.box('userDetails');
-    box2 = Hive.box('userToken');
-    // print(box.values);
-
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (box.values.isEmpty || box.values == null) {
-      return Scaffold(
-        body: Center(
-          child: Column(
-            children: [
-              Text('No user logged in'),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/login');
-                },
-                child: Text('Login'),
-              ),
-            ],
-          ),
-        ),
-      );
-    } else {
-      return Scaffold(
-        body: Center(
-          child: Column(
-            children: [
-              Text('Welcome !', style: TextStyle(fontSize: 20)),
-              Text('Email: ${box.get('email')}'),
-              SizedBox(
-                height: 40,
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  box.clear();
-                  box2.clear();
-                  Navigator.pushNamed(context, '/login');
-                },
-                child: Text('Logout'),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-  }
 }

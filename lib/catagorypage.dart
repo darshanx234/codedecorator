@@ -63,7 +63,7 @@ class _CatagorypageState extends State<Catagorypage> {
             child: CircularProgressIndicator(),
           );
         }
-
+//
         // if (result.data?['category']['children'] == null ||
         //     result.data?['category']['children'].isEmpty) {
         //   setState(() {

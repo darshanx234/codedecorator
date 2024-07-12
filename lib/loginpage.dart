@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hive/hive.dart';
+import 'package:http/http.dart' as http;
 
 class Loginpage extends StatefulWidget {
   Loginpage({super.key});
@@ -24,6 +27,32 @@ class _LoginpageState extends State<Loginpage> {
         }
       }
     ''';
+  }
+
+  Future<void> createcart(token) async {
+    Box box = Hive.box('userToken');
+    var rdata = await http.post(
+      Uri.parse('https://wecancustomize.com/graphql/'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token'
+      },
+      body: jsonEncode(<String, String>{
+        'query': '''
+          mutation {
+            createEmptyCart
+          }
+        ''',
+      }),
+    );
+    // rdata = jsonDecode(rdata.body);
+
+    print(rdata.body);
+    print(jsonDecode(rdata.body)['data']['createEmptyCart']);
+
+    if (jsonDecode(rdata.body)['data']['createEmptyCart'] != null) {
+      box.put('cartToken', jsonDecode(rdata.body)['data']['createEmptyCart']);
+    }
   }
 
   @override
@@ -153,10 +182,13 @@ class _LoginpageState extends State<Loginpage> {
                       if (resultData != null) {
                         print(
                             'Login successful: ${resultData['generateCustomerToken']['token']}');
+                        String token =
+                            resultData['generateCustomerToken']['token'];
                         Hive.box('userToken').put('token',
                             resultData['generateCustomerToken']['token']);
                         Hive.box('userDetails')
                             .put('email', loginEmailController.text);
+                        createcart(token);
                         Navigator.pushNamedAndRemoveUntil(
                             context, '/home', (route) => false);
                       } else {

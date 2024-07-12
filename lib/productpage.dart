@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:onlinestore/productdetail.dart';
@@ -71,11 +72,14 @@ class ProductsPage extends StatelessWidget {
                     children: [
                       // Ensure the image does not overflow
                       Center(
-                        child: Image.network(
-                          scale: 1.0,
-                          product['image']['url'],
+                        child: CachedNetworkImage(
+                          imageUrl: product['image']['url'],
                           width: (screenWidth / crossAxisCount) * 0.65,
                           fit: BoxFit.cover,
+                          placeholder: (context, url) =>
+                              Center(child: CircularProgressIndicator()),
+                          errorWidget: (context, url, error) =>
+                              Icon(Icons.error),
                         ),
                       ),
                       SizedBox(height: 8), // Add some spacing

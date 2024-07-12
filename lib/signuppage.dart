@@ -77,11 +77,41 @@ class _LoginpageState extends State<Signuppage> {
 
     print(rdata.body);
     print(jsonDecode(rdata.body)['data']['generateCustomerToken']['token']);
+    String token =
+        jsonDecode(rdata.body)['data']['generateCustomerToken']['token'];
 
     if (jsonDecode(rdata.body)['data']['generateCustomerToken']['token'] !=
         null) {
-      box.put('token',
-          jsonDecode(rdata.body)['data']['generateCustomerToken']['token']);
+      box.put('token', token);
+      createcart(token);
+
+      Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+    }
+  }
+
+  Future<void> createcart(String token) async {
+    Box box = Hive.box('userToken');
+    var rdata = await http.post(
+      Uri.parse('https://wecancustomize.com/graphql/'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token'
+      },
+      body: jsonEncode(<String, String>{
+        'query': '''
+          mutation {
+            createEmptyCart
+          }
+        ''',
+      }),
+    );
+    rdata = jsonDecode(rdata.body);
+
+    print(rdata.body);
+    print(jsonDecode(rdata.body)['data']['createEmptyCart']);
+
+    if (jsonDecode(rdata.body)['data']['createEmptyCart'] != null) {
+      box.put('cartToken', jsonDecode(rdata.body)['data']['createEmptyCart']);
       Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
     }
   }
@@ -304,6 +334,7 @@ class _LoginpageState extends State<Signuppage> {
                           resultData['createCustomer'] != null) {
                         print(resultData);
                         _submit();
+
                         Box box = Hive.box('userDetails');
                         box.put('firstname', loginFirstNameController.text);
                         box.put('lastname', loginLastNameController.text);

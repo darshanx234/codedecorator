@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:hive/hive.dart';
 
-ValueNotifier<GraphQLClient> initializeGraphQLClient(
-    String yourGraphQLServerURL) {
-  final HttpLink httpLink = HttpLink(yourGraphQLServerURL);
+Future<ValueNotifier<GraphQLClient>> initializeGraphQLClient(
+    String yourGraphQLServerURL) async {
+  String access = await Hive.box('userToken').get('token') ?? '';
+
+  HttpLink httpLink = HttpLink(yourGraphQLServerURL, defaultHeaders: {
+    'Authorization': 'Bearer $access',
+  });
 
   final ValueNotifier<GraphQLClient> client = ValueNotifier(
     GraphQLClient(
