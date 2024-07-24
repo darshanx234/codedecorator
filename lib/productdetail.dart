@@ -9,6 +9,7 @@ import 'package:onlinestore/provider/cart.dart';
 import 'package:onlinestore/provider/cart_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
+import 'package:badges/badges.dart' as badges;
 
 class Productdetailpage extends StatefulWidget {
   final String sku;
@@ -32,11 +33,13 @@ class _ProductdetailpageState extends State<Productdetailpage> {
   late String sku;
   int quantity = 1;
   bool isLoading = false;
+  var cart;
 
   @override
   void initState() {
     super.initState();
     sku = widget.sku;
+    // cart = Provider.of<CartProvider>(context);
   }
 
   String productdetails(String sku) {
@@ -90,7 +93,7 @@ class _ProductdetailpageState extends State<Productdetailpage> {
   Future<void> additemtocart(
       String sku, int quantity, BuildContext context) async {
     Box box = Hive.box('userToken');
-    String token = box.get('token') as String;
+    var token = box.get('token');
     var carttoken = box.get('cartToken');
     print(carttoken);
     var response = await http.post(
@@ -124,6 +127,7 @@ class _ProductdetailpageState extends State<Productdetailpage> {
         }
         quantity
       }
+      total_quantity
     }
   }
 }
@@ -180,7 +184,11 @@ class _ProductdetailpageState extends State<Productdetailpage> {
                   },
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Icon(Icons.shopping_cart),
+                    child: badges.Badge(
+                      badgeContent: Text(cart.cartCount.toString(),
+                          style: TextStyle(color: Colors.white)),
+                      child: Icon(Icons.shopping_cart),
+                    ),
                   ),
                 ),
               ],
@@ -416,8 +424,12 @@ class _ProductdetailpageState extends State<Productdetailpage> {
                             setState(() {
                               isLoading = true;
                             });
-                            // Add to cart logic
                             additemtocart(sku, quantity, context);
+                            setState(() {
+                              cart.addincart(quantity);
+                            });
+
+                            // Add to cart logic
                           },
                           child: Padding(
                             padding: const EdgeInsets.all(14.0),
@@ -530,19 +542,38 @@ class _rendercolorState extends State<rendercolor> {
                 print(selection);
               });
             },
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                decoration: BoxDecoration(
-                    color: containerColor,
-                    borderRadius: BorderRadius.circular(4),
-                    border: selection == index
-                        ? Border.all(color: Colors.black, width: 2)
-                        : Border.all(color: Colors.grey, width: 1)),
-                height: 40,
-                width: 40,
-              ),
-            ),
+            child: index == selection
+                ? Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: containerColor,
+                        borderRadius: BorderRadius.circular(50),
+                        border: containerColor == Colors.white
+                            ? Border.all(color: Colors.grey, width: 1)
+                            : null,
+                      ),
+                      height: 40,
+                      width: 40,
+                      // ignore: unrelated_type_equality_checks
+                      child: Icon(Icons.check,
+                          color: containerColor == Colors.white
+                              ? Colors.black
+                              : Colors.white),
+                    ),
+                  )
+                : Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      decoration: BoxDecoration(
+                          color: containerColor,
+                          borderRadius: BorderRadius.circular(50),
+                          border: Border.all(color: Colors.grey, width: 1)),
+                      height: 40,
+                      width: 40,
+                      // child: Icon(Icons.check, color: Colors.white),
+                    ),
+                  ),
           );
         },
       ),
@@ -580,23 +611,41 @@ class _rendersizeState extends State<rendersize> {
               // Add size selection logic
               print(sizeval);
             },
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(4),
-                    border: selection == index
-                        ? Border.all(color: Colors.black, width: 2)
-                        : Border.all(color: Colors.grey, width: 1)),
-                height: 40,
-                width: 40,
-                // color: Colors.grey[300],
-                child: Center(
-                  child: Text(sizeval ?? ''),
-                ),
-              ),
-            ),
+            child: index == selection
+                ? Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.blue,
+                        borderRadius: BorderRadius.circular(50),
+                      ),
+                      height: 40,
+                      width: 40,
+                      child: Center(
+                        child: Text(
+                          sizeval,
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  )
+                : Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(50),
+                          border: Border.all(color: Colors.grey, width: 1)),
+                      height: 40,
+                      width: 40,
+                      child: Center(
+                        child: Text(
+                          sizeval,
+                          style: TextStyle(color: Colors.black),
+                        ),
+                      ),
+                    ),
+                  ),
           );
         },
       ),

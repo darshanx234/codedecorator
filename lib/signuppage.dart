@@ -105,7 +105,7 @@ class _LoginpageState extends State<Signuppage> {
         ''',
       }),
     );
-    rdata = jsonDecode(rdata.body);
+    // rdata = jsonDecode(rdata.body);
 
     print(rdata.body);
     print(jsonDecode(rdata.body)['data']['createEmptyCart']);

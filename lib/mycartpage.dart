@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
-class AccountPage extends StatefulWidget {
+class Mycartpage extends StatefulWidget {
   @override
-  State<AccountPage> createState() => _AccountPageState();
+  State<Mycartpage> createState() => _MycartpageState();
 }
 
-class _AccountPageState extends State<AccountPage> {
+class _MycartpageState extends State<Mycartpage> {
   Future<Map<String, dynamic>> getUserData() async {
     var box = await Hive.box('userDetails');
     var box2 = await Hive.box('userToken');
-    String? token = box2.get('token');
-    String? email = box.get('email');
-    return {'token': token, 'email': email};
+    String? token = box2.get('cartToken');
+
+    return {'token': token};
   }
 
   @override

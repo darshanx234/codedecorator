@@ -1,30 +1,75 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import './cart.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class CartProvider extends ChangeNotifier {
-  List<CartItem> _cartItems = [];
+  int _cartCount = 0;
+  Future<int> fatchcartcount() async {
+    Box box = Hive.box('userToken');
+    var token = box.get('token');
+    var cartToken = box.get('cartToken');
+    var rdata = await http.post(
+      Uri.parse('https://wecancustomize.com/graphql/'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        // 'Authorization': 'Bearer $token'
+      },
+      body: jsonEncode(<String, String>{
+        'query': '''
+          {
+  cart(cart_id: "$cartToken") {
+    total_quantity
+   }
+}
+        ''',
+      }),
+    );
+    // rdata = jsonDecode(rdata.body);
 
-  List<CartItem> get items => _cartItems;
+    print(rdata.body);
+    int cartquentity = jsonDecode(rdata.body)['data']['cart']['total_quantity'];
+    print(cartquentity);
 
-  void addToCart(CartItem item) {
-    int index = _cartItems.indexWhere((element) => element.sku == item.sku);
-    print(item);
-    print(index);
-    if (index != -1) {
-      _cartItems[index].quantity += 1;
-      print(_cartItems[index].quantity);
-    } else {
-      _cartItems.add(item);
-    }
+    int cartcount = cartquentity;
+
+    return cartcount;
+  }
+
+  CartProvider() {
+    initializeCartCount();
     notifyListeners();
   }
 
-  void removeFromCart(CartItem item) {
-    _cartItems.remove(item);
+  void initializeCartCount() async {
+    _cartCount = await fatchcartcount();
+
+    print('cart count $_cartCount');
+    // _cartCount = 13;
+
     notifyListeners();
   }
 
-  void updateToCart(item) {
+  int get cartCount => _cartCount;
+
+  void addToCart() {
+    _cartCount++;
+    notifyListeners();
+  }
+
+  void removeFromCart() {
+    _cartCount--;
+    notifyListeners();
+  }
+
+  void addincart(int count) {
+    _cartCount = _cartCount + count;
+    notifyListeners();
+  }
+
+  void refreshCart() {
+    initializeCartCount();
     notifyListeners();
   }
 }

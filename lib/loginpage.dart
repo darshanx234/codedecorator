@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
+import 'package:onlinestore/clint/graphql_clint.dart';
+import 'package:provider/provider.dart';
 
 class Loginpage extends StatefulWidget {
   Loginpage({super.key});
@@ -13,6 +15,16 @@ class Loginpage extends StatefulWidget {
 }
 
 class _LoginpageState extends State<Loginpage> {
+  @override
+  void initState() {
+    // Hive.box('userToken').clear();
+    if (Hive.box('userToken').get('token') != null &&
+        Hive.box('userToken').get('token') != '') {
+      Navigator.pushNamed(context, '/home');
+    }
+    // TODO: implement initState
+  }
+
   final _formKey = GlobalKey<FormState>();
   TextEditingController loginEmailController = TextEditingController();
   TextEditingController loginPasswordController = TextEditingController();
@@ -22,7 +34,7 @@ class _LoginpageState extends State<Loginpage> {
   String loginMutation(String email, String password) {
     return '''
       mutation {
-        generateCustomerToken(email: "$email", password: "$password") {
+        generateCustomerToken(email: "${loginEmailController.text}", password: "${loginPasswordController.text}") {
           token
         }
       }
@@ -53,15 +65,6 @@ class _LoginpageState extends State<Loginpage> {
     if (jsonDecode(rdata.body)['data']['createEmptyCart'] != null) {
       box.put('cartToken', jsonDecode(rdata.body)['data']['createEmptyCart']);
     }
-  }
-
-  @override
-  void initState() {
-    if (Hive.box('userToken').get('token') != null) {
-      Navigator.pushNamed(context, '/home');
-    }
-    // TODO: implement initState
-    super.initState();
   }
 
   @override
@@ -175,7 +178,7 @@ class _LoginpageState extends State<Loginpage> {
                       loginEmailController.text,
                       loginPasswordController.text,
                     )),
-                    onCompleted: (dynamic resultData) {
+                    onCompleted: (dynamic resultData) async {
                       setState(() {
                         isLoading = false;
                       });
@@ -184,15 +187,20 @@ class _LoginpageState extends State<Loginpage> {
                             'Login successful: ${resultData['generateCustomerToken']['token']}');
                         String token =
                             resultData['generateCustomerToken']['token'];
-                        Hive.box('userToken').put('token',
-                            resultData['generateCustomerToken']['token']);
+                        Hive.box('userToken').put('token', token);
                         Hive.box('userDetails')
                             .put('email', loginEmailController.text);
                         createcart(token);
+                        // Reinitialize the GraphQL client with the new token
+                        final graphqlservice =
+                            Provider.of<GraphQLService>(context, listen: false);
+
+                        // Assuming reinitializeClient is an async method, you should await it
+                        await graphqlservice.reinitializeClient(
+                            'https://wecancustomize.com/graphql/', token);
+
                         Navigator.pushNamedAndRemoveUntil(
                             context, '/home', (route) => false);
-                      } else {
-                        print('Login failed');
                       }
                     },
                     onError: (error) {

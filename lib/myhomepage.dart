@@ -4,6 +4,9 @@ import 'package:onlinestore/accountpage.dart';
 import 'package:onlinestore/catagorypage.dart';
 import 'package:onlinestore/homepage.dart';
 import 'package:onlinestore/mydrawer.dart';
+import 'package:badges/badges.dart' as badges;
+import 'package:onlinestore/provider/cart_provider.dart';
+import 'package:provider/provider.dart';
 
 class Myhomepage extends StatefulWidget {
   const Myhomepage({super.key});
@@ -31,10 +34,14 @@ class _MyhomepageState extends State<Myhomepage> {
 
   @override
   Widget build(BuildContext context) {
+    final cart = Provider.of<CartProvider>(context);
+    print(cart.cartCount);
+
     return Scaffold(
       drawer: Mydrawer(),
       appBar: AppBar(
         // automaticallyImplyLeading: false,
+        elevation: 4,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -45,7 +52,10 @@ class _MyhomepageState extends State<Myhomepage> {
                   onTap: () {},
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Icon(Icons.search),
+                    child: Icon(
+                      Icons.search,
+                      // color: Colors.white,
+                    ),
                   ),
                 ),
                 InkWell(
@@ -53,9 +63,12 @@ class _MyhomepageState extends State<Myhomepage> {
                     Navigator.pushNamed(context, '/cart');
                   },
                   child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Icon(Icons.shopping_cart),
-                  ),
+                      padding: const EdgeInsets.all(8.0),
+                      child: badges.Badge(
+                        badgeContent: Text(cart.cartCount.toString(),
+                            style: TextStyle(color: Colors.white)),
+                        child: Icon(Icons.shopping_cart),
+                      )),
                 ),
               ],
             ),
@@ -82,8 +95,12 @@ class _MyhomepageState extends State<Myhomepage> {
             label: 'Account',
           ),
         ],
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.grey,
+        selectedItemColor: ColorSwatch(0xFF4285F4, {
+          500: Color(0xFF4285F4),
+        }),
+        unselectedItemColor: ColorScheme.fromSeed(seedColor: Colors.blue)
+            .onSurface
+            .withOpacity(0.6),
         currentIndex: _selectedIndex, // Add this line
         onTap: _onItemTapped, // Add this line
         key: const Key('bottomNavigationBar'),
